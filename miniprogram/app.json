@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/document/document",
+    "pages/audio/audio"
+  ],
+  "window": {
+    "navigationBarTitleText": "ConvertEase - 专业文档转换",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#f6f7f9"
+  },
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,106 @@
+<view class="container">
+  <view class="title">🎵 音频转换</view>
+  
+  <view class="card">
+    <view class="subtitle">选择源文件格式</view>
+    <view class="format-grid">
+      <view class="format-item {{sourceIndex === 0 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="0">
+        <view class="format-text">MP3</view>
+      </view>
+      <view class="format-item {{sourceIndex === 1 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="1">
+        <view class="format-text">WAV</view>
+      </view>
+      <view class="format-item {{sourceIndex === 2 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="2">
+        <view class="format-text">AAC</view>
+      </view>
+      <view class="format-item {{sourceIndex === 3 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="3">
+        <view class="format-text">FLAC</view>
+      </view>
+      <view class="format-item {{sourceIndex === 4 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="4">
+        <view class="format-text">M4A</view>
+      </view>
+      <view class="format-item {{sourceIndex === 5 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="5">
+        <view class="format-text">OGG</view>
+      </view>
+      <view class="format-item {{sourceIndex === 6 ? 'selected' : ''}}" bindtap="selectSourceFormat" data-index="6">
+        <view class="format-text">WMA</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="subtitle">选择目标格式</view>
+    <view class="format-grid">
+      <view wx:for="{{availableTargets}}" wx:key="index" class="format-item {{targetIndex === index ? 'selected' : ''}}" bindtap="selectTargetFormat" data-index="{{index}}">
+        <view class="format-text">{{item}}</view>
+      </view>
+      <view wx:if="{{availableTargets.length === 0}}" class="no-targets">
+        <view class="muted">请先选择源文件格式</view>
+      </view>
+    </view>
+    <view class="muted" wx:if="{{availableTargets.length > 0}}">支持转换为：{{availableTargets.join('、')}}</view>
+  </view>
+
+  <view class="card">
+    <view class="subtitle">选择文件</view>
+    <button type="default" bindtap="chooseFileAction" class="btn-primary">🎵 选择音频文件</button>
+
+    <view wx:if="{{fileList.length > 0}}" style="margin-top:24rpx">
+      <block wx:for="{{fileList}}" wx:key="path">
+        <view class="file-item">
+          <view class="file-icon">🎵</view>
+          <view class="file-info">
+            <view class="file-name">{{item.name}}</view>
+            <view class="file-size">{{item.size}}</view>
+          </view>
+          <view class="file-actions">
+            <view class="status-badge {{item.status === 'processing' ? 'status-processing' : item.status === 'success' ? 'status-success' : item.status === 'error' ? 'status-error' : ''}}">
+              {{item.status === 'processing' ? '转换中' : item.status === 'success' ? '完成' : item.status === 'error' ? '失败' : '待转换'}}
+            </view>
+            <view class="action-row">
+              <button size="mini" data-index="{{index}}" bindtap="removeFile">删除</button>
+              <button size="mini" data-index="{{index}}" bindtap="previewFile" wx:if="{{item.downloadUrl}}">预览</button>
+              <button size="mini" data-index="{{index}}" bindtap="downloadFile" wx:if="{{item.downloadUrl}}">下载</button>
+              <button size="mini" data-index="{{index}}" bindtap="shareFile" wx:if="{{item.downloadUrl}}">分享</button>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{converting}}" class="card">
+    <view class="subtitle">转换进度</view>
+    <view class="progress-container">
+      <view class="progress-bar">
+        <view class="progress-fill" style="{{'width:' + progress + '%'}}"></view>
+      </view>
+      <view class="progress-text">{{progressText}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{fileList.length > 0 && availableTargets.length > 0}}" class="card">
+    <button type="primary" loading="{{converting}}" disabled="{{converting}}" bindtap="startConvert" class="btn-success">
+      {{converting ? '转换中...' : '开始转换'}}
+    </button>
+  </view>
+</view>
+
+<!-- 底部弹出播放面板（ActionSheet 风，50% 高度） -->
+<view wx:if="{{showPreviewModal}}" class="preview-overlay" bindtap="onOverlayTap">
+  <view class="preview-sheet" catchtouchmove>
+    <view class="sheet-header">
+      <view class="sheet-title">{{previewName}}</view>
+      <button class="close-btn" bindtap="closePreview">×</button>
+    </view>
+    <view class="sheet-body">
+      <view class="audio-wrap">
+        <!-- audio 组件：controls 提供内置 UI，不会自动播放 -->
+        <audio id="previewAudio" src="{{previewSrc}}" controls></audio>
+      </view>
+      <view class="sheet-info">
+        <view class="muted">提示：手动点击播放，拖动进度条以跳转。</view>
+      </view>
+    </view>
+  </view>
+</view>

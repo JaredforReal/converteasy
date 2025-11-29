@@ -1,0 +1,79 @@
+<view class="container">
+  <view class="title">文档转换</view>
+  
+  <!-- 选择源文件格式 -->
+  <view class="card">
+    <view class="subtitle">选择源文件格式</view>
+    <view class="format-grid">
+      <view wx:for="{{sourceFormats}}" wx:key="index"
+            class="format-item {{sourceIndex === index ? 'selected' : ''}}"
+            bindtap="selectSourceFormat" data-index="{{index}}">
+        <view class="format-text">{{sourceFormatDisplay[index]}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选择目标格式 -->
+  <view class="card">
+    <view class="subtitle">选择目标格式</view>
+    <view class="format-grid">
+      <view wx:for="{{availableTargets}}" wx:key="index"
+            class="format-item {{targetIndex === index ? 'selected' : ''}}"
+            bindtap="selectTargetFormat" data-index="{{index}}">
+        <view class="format-text">{{itemDisplayNames[index]}}</view>
+      </view>
+      <view wx:if="{{availableTargets.length === 0}}" class="no-targets">
+        <view class="muted">请先选择源文件格式</view>
+      </view>
+    </view>
+    <view class="muted" wx:if="{{availableTargets.length > 0}}">支持转换为：{{targetFormatNames}}</view>
+  </view>
+
+  <!-- 选择文件 -->
+  <view class="card">
+    <view class="subtitle">选择文件</view>
+    <button type="default" bindtap="chooseFileAction" class="btn-primary">选择文档文件</button>
+    
+    <view wx:if="{{fileList.length > 0}}" style="margin-top:24rpx">
+      <view wx:for="{{fileList}}" wx:key="path" class="file-item">
+        <view class="file-icon">{{getFileIcon(item.name)}}</view>
+        <view class="file-info">
+          <view class="file-name">{{item.name}}</view>
+          <view class="file-size">{{item.size}}</view>
+          <view class="file-format">{{_getExt(item.name).toUpperCase()}} 文件 
+            <text wx:if="{{!isTargetPreviewSupported(item)}}" class="preview-hint">(不支持预览)</text>
+          </view>
+        </view>
+        <view class="file-actions">
+          <view class="status-badge {{item.status === 'processing' ? 'status-processing' : item.status === 'success' ? 'status-success' : item.status === 'error' ? 'status-error' : ''}}">
+            {{item.status === 'processing' ? '转换中' : item.status === 'success' ? '完成' : item.status === 'error' ? '失败' : '待转换'}}
+          </view>
+          <view class="action-row">
+            <button size="mini" data-index="{{index}}" bindtap="removeFile">删除</button>
+            <button size="mini" data-index="{{index}}" bindtap="previewFile" wx:if="{{item.downloadUrl}}">预览</button>
+            <button size="mini" data-index="{{index}}" bindtap="downloadFile" wx:if="{{item.downloadUrl}}">下载</button>
+            <button size="mini" data-index="{{index}}" bindtap="shareFile" wx:if="{{item.downloadUrl}}">分享</button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 转换进度 -->
+  <view wx:if="{{converting}}" class="card">
+    <view class="subtitle">转换进度</view>
+    <view class="progress-container">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width:{{progress}}"></view>
+      </view>
+      <view class="progress-text">{{progressText}}</view>
+    </view>
+  </view>
+
+  <!-- 开始转换按钮 -->
+  <view wx:if="{{fileList.length > 0 && availableTargets.length > 0}}" class="card">
+    <button type="primary" loading="{{converting}}" disabled="{{converting}}" bindtap="startConvert" class="btn-success">
+      {{converting ? '转换中...' : '开始转换'}}
+    </button>
+  </view>
+</view>

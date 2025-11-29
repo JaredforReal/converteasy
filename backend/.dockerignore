@@ -1,0 +1,12 @@
+# Docker ignore for backend build context
+node_modules
+dist
+uploads
+*.log
+.vscode
+.git
+__pycache__
+*.pyc
+*.cache
+.DS_Store
+.env
