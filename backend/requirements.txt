@@ -1,28 +1,43 @@
-# 核心兼容性设置
+# ==========================================
+# ConvertEasy Backend - Python 依赖
+# ==========================================
+
+# ============ FastAPI 框架 ============
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6      # 文件上传支持
+pydantic>=2.5.0
+pydantic-settings>=2.1.0     # 配置管理
+aiofiles>=23.2.1             # 异步文件操作
+aiohttp>=3.9.0               # 异步 HTTP 客户端
+nanoid>=2.0.0                # ID 生成
+psutil>=5.9.0                # 系统监控
+
+# ============ 核心依赖 ============
 numpy==1.26.4
 
-# PDF 处理库
+# ============ PDF 处理库 ============
 pdf2docx==0.5.8
 pdfplumber==0.10.3
 pdfminer.six==20221105
 PyPDF2==3.0.1
-pymupdf==1.23.8  # 新增：用于 pdf_to_doc.py 的备选方案
+pymupdf==1.23.8              # PDF 处理备选方案
 
-# Office 文档处理
+# ============ Office 文档处理 ============
 python-docx==1.1.0
 python-pptx==0.6.23
 
-# Excel 处理
+# ============ Excel 处理 ============
 openpyxl==3.1.2
 pandas==2.1.4
 xlrd==2.0.1
 xlwt==1.3.0
 
-# HTML 处理 (新增)
-beautifulsoup4==4.12.2  # 用于 html_to_word.py
-xhtml2pdf==0.2.13       # 用于 html_to_pdf.py
-reportlab==4.0.4        # xhtml2pdf 的依赖
+# ============ HTML 处理 ============
+beautifulsoup4==4.12.2       # HTML 解析
+xhtml2pdf==0.2.13            # HTML 转 PDF
+reportlab==4.0.4             # xhtml2pdf 依赖
 
-# 其他工具库
-Pillow==10.1.0          # 图像处理支持
-lxml==4.9.3             # XML/HTML 解析
+# ============ 其他工具库 ============
+Pillow==10.1.0               # 图像处理
+lxml==4.9.3                  # XML/HTML 解析

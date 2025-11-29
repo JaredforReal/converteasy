@@ -1,46 +1,19 @@
 # syntax=docker/dockerfile:1.4
 ##############################################
-# ConvertEasy Backend - 多阶段构建优化版
+# ConvertEasy Backend - Python FastAPI 版本
 # 支持文档转换（PDF/Word/Excel/PPT）和音频转换
 ##############################################
 
-# 构建参数
-ARG NODE_VERSION=18
 ARG PYTHON_VERSION=3.11
 
 ##############################################
-# Stage 1: Node.js 构建阶段
+# Stage 1: 构建阶段
 ##############################################
-FROM node:${NODE_VERSION}-slim AS node-builder
+FROM python:${PYTHON_VERSION}-slim AS builder
 
 WORKDIR /app
 
-# 安装构建依赖并构建（单层合并）
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 make g++ \
-    && rm -rf /var/lib/apt/lists/*
-
-# 利用 Docker 缓存：先复制依赖文件
-COPY package*.json tsconfig.json ./
-
-# 安装依赖 + 构建 + 清理（单层）
-RUN npm ci --ignore-scripts \
-    && npm cache clean --force
-
-# 复制源码并构建
-COPY src ./src
-RUN npm run build \
-    && npm prune --production \
-    && rm -rf src tsconfig.json
-
-##############################################
-# Stage 2: Python 依赖构建阶段
-##############################################
-FROM python:${PYTHON_VERSION}-slim AS python-builder
-
-WORKDIR /app
-
-# 安装编译依赖（单层）
+# 安装构建依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ libcairo2-dev libffi-dev pkg-config \
     && rm -rf /var/lib/apt/lists/*
@@ -54,27 +27,25 @@ RUN python3 -m venv /opt/venv \
     && find /opt/venv -type f -name "*.pyc" -delete 2>/dev/null || true
 
 ##############################################
-# Stage 3: 运行时镜像（精简版）
+# Stage 2: 运行时镜像
 ##############################################
-FROM node:${NODE_VERSION}-slim AS runtime
+FROM python:${PYTHON_VERSION}-slim AS runtime
 
 # 镜像元数据
 LABEL maintainer="ConvertEasy Team" \
-      version="1.0.0" \
-      description="File conversion service with document and audio support"
+      version="2.0.0" \
+      description="File conversion service with FastAPI - document and audio support"
 
 # 环境变量
-ENV NODE_ENV=production \
-    PYTHON_PATH=/opt/venv/bin/python3 \
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH" \
-    # 禁用 Python 字节码缓存
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PORT=8080 \
+    HOST=0.0.0.0
 
 WORKDIR /app
 
-# 安装运行时依赖（单层，移除冗余的 python3 python3-venv）
-# 注：已从 python-builder 复制完整 venv，无需系统 Python
+# 安装运行时依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # 基础依赖
     ca-certificates \
@@ -99,50 +70,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && mkdir -p /app/uploads /app/public \
     && chmod 755 /app/uploads /app/public
 
-# 复制 Node.js 构建产物
-COPY --from=node-builder /app/dist ./dist
-COPY --from=node-builder /app/node_modules ./node_modules
-COPY --from=node-builder /app/package.json ./
+# 复制虚拟环境
+COPY --from=builder /opt/venv /opt/venv
 
-# 复制 Python 虚拟环境
-COPY --from=python-builder /opt/venv /opt/venv
-
-# 确保 python3 符号链接存在
-RUN ln -sf /opt/venv/bin/python3.11 /opt/venv/bin/python3 2>/dev/null || true \
-    && ln -sf /opt/venv/bin/python3.11 /opt/venv/bin/python 2>/dev/null || true
-
-# 复制 Python 转换脚本
-COPY src/scripts ./src/scripts
+# 复制应用代码
+COPY app ./app
 
 # 复制证书配置（K8s lifecycle hook）
 COPY cert /app/cert
 RUN set -e; \
-    # 设置 initenv.sh 权限
     if [ -f /app/cert/initenv.sh ]; then \
         chmod +x /app/cert/initenv.sh; \
     fi; \
-    # 预加载证书到系统信任库
     if [ -f /app/cert/certificate.crt ]; then \
         cp /app/cert/certificate.crt /usr/local/share/ca-certificates/ 2>/dev/null || true; \
         update-ca-certificates 2>/dev/null || true; \
-    fi; \
-    # 替换为轻量级 initenv（避免运行时 OOM）
-    if [ -f /app/cert/initenv.sh ]; then \
-        printf '%s\n' \
-            '#!/bin/sh' \
-            'set -e' \
-            '[ -d /app/uploads ] || mkdir -p /app/uploads' \
-            '[ -d /app/public ] || mkdir -p /app/public' \
-            'echo "[initenv] ready"' \
-            'exit 0' > /app/cert/initenv.sh; \
-        chmod +x /app/cert/initenv.sh; \
     fi
 
-# 健康检查（使用 curl 更轻量）
+# 健康检查
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -fsS http://localhost:8080/health || exit 1
 
 EXPOSE 8080
 
 # 启动命令
-CMD ["node", "dist/index.js"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
