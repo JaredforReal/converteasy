@@ -1,0 +1,984 @@
+{
+	"info": {
+		"_postman_id": "converteasy-api-tests",
+		"name": "ConvertEasy API Tests",
+		"description": "ConvertEasy 文件转换服务 API 测试集合\n\n支持：\n- 文档转换（PDF/Word/Excel/PPT/TXT/HTML）\n- 音频转换（MP3/WAV/AAC/FLAC/OGG/M4A）",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://convert-easy-203720-5-1389303207.sh.run.tcloudbase.com",
+			"type": "string"
+		},
+		{
+			"key": "taskId",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "健康检查",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has ok=true', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.ok).to.eql(true);",
+									"});",
+									"",
+									"pm.test('Service name is correct', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.service).to.eql('converteasy-backend');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						},
+						"description": "检查服务是否正常运行"
+					},
+					"response": []
+				},
+				{
+					"name": "Server Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Server is running', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('running');",
+									"});",
+									"",
+									"pm.test('Response contains system info', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('system');",
+									"    pm.expect(jsonData).to.have.property('tasks');",
+									"    pm.expect(jsonData).to.have.property('files');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/server-status",
+							"host": ["{{baseUrl}}"],
+							"path": ["server-status"]
+						},
+						"description": "获取服务器详细状态信息"
+					},
+					"response": []
+				}
+			],
+			"description": "服务健康检查相关接口"
+		},
+		{
+			"name": "格式支持查询",
+			"item": [
+				{
+					"name": "Get All Supported Formats",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Contains document formats', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('document');",
+									"    pm.expect(jsonData.document).to.have.property('allowedExtensions');",
+									"    pm.expect(jsonData.document).to.have.property('supportedConversions');",
+									"});",
+									"",
+									"pm.test('Contains audio formats', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('audio');",
+									"    pm.expect(jsonData.audio).to.have.property('allowedExtensions');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/supported-formats",
+							"host": ["{{baseUrl}}"],
+							"path": ["supported-formats"]
+						},
+						"description": "获取所有支持的文件格式"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Document Formats Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Only contains document formats', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('document');",
+									"    pm.expect(jsonData).to.not.have.property('audio');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/supported-formats?category=document",
+							"host": ["{{baseUrl}}"],
+							"path": ["supported-formats"],
+							"query": [
+								{
+									"key": "category",
+									"value": "document"
+								}
+							]
+						},
+						"description": "仅获取文档格式支持"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Audio Formats Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Only contains audio formats', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('audio');",
+									"    pm.expect(jsonData).to.not.have.property('document');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/supported-formats?category=audio",
+							"host": ["{{baseUrl}}"],
+							"path": ["supported-formats"],
+							"query": [
+								{
+									"key": "category",
+									"value": "audio"
+								}
+							]
+						},
+						"description": "仅获取音频格式支持"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Category (Error Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error message exists', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('detail');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/supported-formats?category=invalid",
+							"host": ["{{baseUrl}}"],
+							"path": ["supported-formats"],
+							"query": [
+								{
+									"key": "category",
+									"value": "invalid"
+								}
+							]
+						},
+						"description": "测试无效分类的错误响应"
+					},
+					"response": []
+				}
+			],
+			"description": "查询支持的文件格式"
+		},
+		{
+			"name": "文件转换",
+			"item": [
+				{
+					"name": "Detect Targets - PDF File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has expected fields', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('filename');",
+									"    pm.expect(jsonData).to.have.property('category');",
+									"    pm.expect(jsonData).to.have.property('sourceExtension');",
+									"    pm.expect(jsonData).to.have.property('supportedTargets');",
+									"    pm.expect(jsonData).to.have.property('canConvert');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 PDF 文件进行测试"
+								},
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/detect-targets",
+							"host": ["{{baseUrl}}"],
+							"path": ["detect-targets"]
+						},
+						"description": "检测 PDF 文件可以转换成哪些格式"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload & Convert - PDF to DOCX",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has taskId', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.expect(jsonData.taskId).to.be.a('string');",
+									"    ",
+									"    // 保存 taskId 供后续查询使用",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"    console.log('Task ID saved:', jsonData.taskId);",
+									"});",
+									"",
+									"pm.test('Response has message', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 PDF 文件"
+								},
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "docx",
+									"type": "text"
+								},
+								{
+									"key": "source",
+									"value": "pdf",
+									"type": "text",
+									"description": "可选：源文件格式"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "上传 PDF 文件并转换为 Word 文档"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload & Convert - DOCX to PDF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has taskId', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 Word 文件"
+								},
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "上传 Word 文档并转换为 PDF"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload & Convert - Excel to PDF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has taskId', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 Excel 文件"
+								},
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "上传 Excel 文件并转换为 PDF"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload & Convert - Audio MP3 to WAV",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has taskId', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('taskId');",
+									"    pm.collectionVariables.set('taskId', jsonData.taskId);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 MP3 文件"
+								},
+								{
+									"key": "category",
+									"value": "audio",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "wav",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "上传 MP3 文件并转换为 WAV"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Task Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has state field', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('state');",
+									"    pm.expect(['queued', 'processing', 'finished', 'error']).to.include(jsonData.state);",
+									"});",
+									"",
+									"pm.test('If finished, has download URL', function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.state === 'finished') {",
+									"        pm.expect(jsonData).to.have.property('url');",
+									"        pm.expect(jsonData).to.have.property('downloadUrl');",
+									"        pm.expect(jsonData).to.have.property('previewUrl');",
+									"    }",
+									"});",
+									"",
+									"// 如果还在处理中，打印状态",
+									"var jsonData = pm.response.json();",
+									"console.log('Task state:', jsonData.state);",
+									"if (jsonData.state === 'finished') {",
+									"    console.log('Download URL:', jsonData.downloadUrl);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/convert/task/{{taskId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "task", "{{taskId}}"]
+						},
+						"description": "查询转换任务状态\n\n注意：先运行上传转换接口获取 taskId"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Task Status (Not Found)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test('Error message exists', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('detail');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/convert/task/invalid-task-id-12345",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "task", "invalid-task-id-12345"]
+						},
+						"description": "测试查询不存在的任务"
+					},
+					"response": []
+				}
+			],
+			"description": "文件上传和转换相关接口"
+		},
+		{
+			"name": "文件下载与预览",
+			"item": [
+				{
+					"name": "Download File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 下载接口可能返回文件或404",
+									"pm.test('Status code is 200 or 404', function () {",
+									"    pm.expect([200, 404]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test('Content-Disposition header exists', function () {",
+									"        pm.expect(pm.response.headers.has('Content-Disposition')).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/download/test_file.pdf",
+							"host": ["{{baseUrl}}"],
+							"path": ["download", "test_file.pdf"]
+						},
+						"description": "下载转换后的文件\n\n替换 test_file.pdf 为实际文件名"
+					},
+					"response": []
+				},
+				{
+					"name": "Preview File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 预览接口可能返回文件或404",
+									"pm.test('Status code is 200 or 404', function () {",
+									"    pm.expect([200, 404]).to.include(pm.response.code);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    pm.test('Has Content-Type header', function () {",
+									"        pm.expect(pm.response.headers.has('Content-Type')).to.be.true;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/preview/test_file.pdf",
+							"host": ["{{baseUrl}}"],
+							"path": ["preview", "test_file.pdf"]
+						},
+						"description": "预览转换后的文件\n\n替换 test_file.pdf 为实际文件名"
+					},
+					"response": []
+				},
+				{
+					"name": "Download File (Not Found)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 404', function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/download/nonexistent_file_12345.pdf",
+							"host": ["{{baseUrl}}"],
+							"path": ["download", "nonexistent_file_12345.pdf"]
+						},
+						"description": "测试下载不存在的文件"
+					},
+					"response": []
+				}
+			],
+			"description": "文件下载和预览接口"
+		},
+		{
+			"name": "系统管理",
+			"item": [
+				{
+					"name": "Manual Cleanup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Cleanup message exists', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('清理');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cleanup",
+							"host": ["{{baseUrl}}"],
+							"path": ["cleanup"]
+						},
+						"description": "手动触发过期文件清理"
+					},
+					"response": []
+				}
+			],
+			"description": "系统管理相关接口"
+		},
+		{
+			"name": "错误处理测试",
+			"item": [
+				{
+					"name": "Missing File (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400 or 422', function () {",
+									"    pm.expect([400, 422]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "测试缺少文件的错误"
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Category (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "category",
+									"value": "invalid_category",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "测试无效分类的错误"
+					},
+					"response": []
+				},
+				{
+					"name": "Unsupported Conversion (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error mentions unsupported conversion', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('detail');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 MP3 文件"
+								},
+								{
+									"key": "category",
+									"value": "audio",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text",
+									"description": "音频不能转换为 PDF"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "测试不支持的转换组合"
+					},
+					"response": []
+				},
+				{
+					"name": "Format Mismatch (400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error mentions format mismatch', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.detail).to.include('格式不匹配');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "",
+									"description": "选择一个 DOCX 文件"
+								},
+								{
+									"key": "category",
+									"value": "document",
+									"type": "text"
+								},
+								{
+									"key": "target",
+									"value": "pdf",
+									"type": "text"
+								},
+								{
+									"key": "source",
+									"value": "pdf",
+									"type": "text",
+									"description": "故意填写错误的源格式"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/convert/upload",
+							"host": ["{{baseUrl}}"],
+							"path": ["convert", "upload"]
+						},
+						"description": "测试源格式与实际文件不匹配的错误"
+					},
+					"response": []
+				}
+			],
+			"description": "错误处理和边界情况测试"
+		}
+	]
+}
