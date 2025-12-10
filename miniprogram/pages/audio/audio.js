@@ -98,7 +98,7 @@ Page({
 
   async chooseFile(allowedExt) {
     try {
-      const tempFiles = await chooseMessageFile({ count: 9, extension: allowedExt });
+      const tempFiles = await chooseMessageFile(allowedExt, 9);
       this._processSelectedFiles(tempFiles, allowedExt);
     } catch (err) {
       if (err.errMsg && !err.errMsg.includes('cancel')) {
@@ -160,7 +160,10 @@ Page({
 
       try {
         const target = this.data.availableTargets[this.data.targetIndex];
-        const task = await createAudioConvertTask(item.path, target);
+        const task = await createAudioConvertTask({
+          filePath: item.path,
+          targetFormat: target
+        });
         next[i] = { ...next[i], taskId: task.taskId };
         this.setData({ fileList: next });
 
