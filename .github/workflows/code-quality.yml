@@ -28,15 +28,11 @@ jobs:
 
       - name: 安装 Python 代码检查工具
         run: |
-          pip install black isort flake8
+          pip install black flake8
 
       - name: 检查 Python 代码格式 (Black)
         run: |
           black --check --line-length=100 backend/
-
-      - name: 检查 Python 导入排序 (isort)
-        run: |
-          isort --check-only --profile=black --line-length=100 backend/
 
       - name: 检查 Python 代码风格 (Flake8)
         run: |

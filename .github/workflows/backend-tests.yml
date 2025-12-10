@@ -39,12 +39,12 @@ jobs:
           path: |
             /var/cache/apt/archives
             /var/lib/apt/lists
-          key: ${{ runner.os }}-apt-libreoffice-ffmpeg-v1
+          key: ${{ runner.os }}-apt-libreoffice-ffmpeg-cairo-v2
 
       - name: 安装系统依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress ffmpeg
+          sudo apt-get install -y --no-install-recommends libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress ffmpeg libcairo2-dev pkg-config
 
       - name: 安装 Python 依赖
         run: |
