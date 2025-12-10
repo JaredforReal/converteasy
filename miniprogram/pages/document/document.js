@@ -8,10 +8,10 @@ const { previewDocument, downloadAndSaveFile, shareRemoteFile, chooseMessageFile
 const {
   normalizeFileUrl,
   createDocumentConvertTask,
-  queryTaskByCloud,
+  queryTask,
   pollTaskUntilComplete,
-  loadSupportedFormatsByCloud,
-  healthCheckByCloud
+  loadSupportedFormats,
+  healthCheck
 } = require('../../utils/api');
 const {
   DOCUMENT_SOURCE_FORMATS,
@@ -50,27 +50,26 @@ Page({
   },
 
   onLoad() {
-    console.log('云开发初始化状态:', wx.cloud);
-    this.testCloudConnection();
-    this.loadSupportedFormats();
+    this.testConnection();
+    this.loadFormats();
   },
 
-  // 测试云调用连接
-  async testCloudConnection() {
+  // 测试服务连接
+  async testConnection() {
     try {
-      await healthCheckByCloud();
-      console.log('✅ 云调用连接成功');
-      showToast('云服务连接正常', 'success');
+      await healthCheck();
+      console.log('✅ 服务连接成功');
+      showToast('服务连接正常', 'success');
     } catch (err) {
-      console.error('❌ 云调用连接失败:', err);
-      showToast('云服务连接失败', 'none');
+      console.error('❌ 服务连接失败:', err);
+      showToast('服务连接失败', 'none');
     }
   },
 
   // 加载服务器支持的格式
-  async loadSupportedFormats() {
+  async loadFormats() {
     try {
-      const result = await loadSupportedFormatsByCloud('document');
+      const result = await loadSupportedFormats('document');
       console.log('格式加载响应:', result);
 
       if (result?.document?.supportedConversions) {
@@ -232,7 +231,7 @@ Page({
   async _pollTask(index, taskId) {
     const result = await pollTaskUntilComplete(
       taskId,
-      queryTaskByCloud,
+      queryTask,
       (progress) => {
         if (this.data.progress < progress) {
           this.setData({ progress, progressText: `正在转换...` });

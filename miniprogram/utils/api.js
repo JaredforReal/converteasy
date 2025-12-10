@@ -1,21 +1,15 @@
 /**
  * API 请求模块
- * 封装云调用和 HTTP 请求方法
+ * 纯 HTTP 请求方式，无云调用依赖
  */
 
 const { sleep } = require('./common');
 
-// 云托管配置
-const CLOUD_CONFIG = {
-  env: "convert-easy-9gy01nt7e03d9579",
-  serviceName: "convert-easy"
-};
-
-// 公网域名（用于替换 localhost）
-const PUBLIC_BASE_URL = "https://convert-easy-203720-5-1389303207.sh.run.tcloudbase.com";
+// 正式域名
+const BASE_URL = "https://convertease.site";
 
 /**
- * 获取 API 基础地址（用于 HTTP 请求）
+ * 获取 API 基础地址
  * @returns {string}
  */
 function getBaseUrl() {
@@ -23,13 +17,12 @@ function getBaseUrl() {
   if (app && app.globalData && app.globalData.apiBaseUrl) {
     return app.globalData.apiBaseUrl.replace(/\/$/, '');
   }
-  return PUBLIC_BASE_URL;
+  return BASE_URL;
 }
 
 /**
  * 规范化文件 URL
- * 1) 将 /download/ 路径替换为 /public/
- * 2) 如果 URL 指向 localhost，则使用 PUBLIC_BASE_URL 替换
+ * 将 /download/ 路径替换为 /public/，处理 localhost 地址
  * @param {string} url - 原始 URL
  * @returns {string} 规范化后的 URL
  */
@@ -42,54 +35,15 @@ function normalizeFileUrl(url) {
       u = u.replace('/download/', '/public/');
     }
     const localhostPattern = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/i;
-    if (localhostPattern.test(u) && PUBLIC_BASE_URL) {
-      const base = PUBLIC_BASE_URL.replace(/\/$/, '');
+    if (localhostPattern.test(u)) {
+      const base = BASE_URL.replace(/\/$/, '');
       u = u.replace(localhostPattern, base);
-      console.log('已将本地地址替换为 PUBLIC_BASE_URL:', u);
+      console.log('已将本地地址替换为正式域名:', u);
     }
   } catch (e) {
     console.warn('规范化文件 URL 失败，返回原始 URL', e);
   }
   return u;
-}
-
-/**
- * 云调用 - 发起请求
- * @param {string} path - API 路径
- * @param {string} method - 请求方法
- * @param {object} data - 请求数据
- * @returns {Promise<any>}
- */
-function cloudRequest(path, method = "GET", data = null) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      config: { env: CLOUD_CONFIG.env },
-      path,
-      header: { "X-WX-SERVICE": CLOUD_CONFIG.serviceName },
-      method,
-    };
-
-    if (data) {
-      options.data = data;
-      options.header["content-type"] = "application/json";
-    }
-
-    wx.cloud.callContainer({
-      ...options,
-      success: (res) => {
-        console.log(`[云调用] ${method} ${path}:`, res);
-        if (res.data) {
-          resolve(res.data);
-        } else {
-          reject(new Error("响应数据为空"));
-        }
-      },
-      fail: (err) => {
-        console.error(`[云调用失败] ${method} ${path}:`, err);
-        reject(new Error(err.errMsg || "请求失败"));
-      }
-    });
-  });
 }
 
 /**
@@ -104,6 +58,9 @@ function httpRequest(url, method = "GET", data = null) {
     const options = {
       url,
       method,
+      header: {
+        "content-type": "application/json"
+      },
       success: (res) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data || {});
@@ -164,89 +121,30 @@ function httpUploadFile(url, filePath, formData) {
 }
 
 /**
- * 云存储上传文件并获取临时 URL
- * @param {string} filePath - 本地文件路径
- * @param {string} sourceFormat - 源文件格式
- * @returns {Promise<{cloudPath: string, tempUrl: string}>}
- */
-function uploadToCloudStorage(filePath, sourceFormat) {
-  return new Promise((resolve, reject) => {
-    const cloudPath = `temp/${Date.now()}_${Math.random().toString(36).substr(2)}.${sourceFormat || 'file'}`;
-
-    wx.cloud.uploadFile({
-      cloudPath,
-      filePath,
-      success: (uploadRes) => {
-        console.log('文件上传到云存储成功:', uploadRes);
-
-        // 获取临时可下载 URL
-        wx.cloud.getTempFileURL({
-          fileList: [{ fileID: uploadRes.fileID }],
-          success: (tempRes) => {
-            console.log('getTempFileURL 返回:', tempRes);
-            const tempUrl = tempRes.fileList?.[0]?.tempFileURL;
-            if (!tempUrl) {
-              console.error('getTempFileURL 未返回 tempFileURL', tempRes);
-              reject(new Error('无法获取临时下载 URL'));
-              return;
-            }
-            console.log('临时下载 URL:', tempUrl);
-            resolve({ cloudPath, tempUrl });
-          },
-          fail: (err) => {
-            console.error('获取临时文件 URL 失败', err);
-            reject(new Error('获取临时文件 URL 失败'));
-          }
-        });
-      },
-      fail: (uploadErr) => {
-        console.error("[云存储上传失败]", uploadErr);
-        reject(new Error(uploadErr.errMsg || "文件上传失败"));
-      }
-    });
-  });
-}
-
-/**
- * 云调用 - 创建文档转换任务
+ * 创建文档转换任务
  * @param {object} params - 转换参数
  * @param {string} params.filePath - 本地文件路径
  * @param {string} params.targetFormat - 目标格式
  * @param {string} params.sourceFormat - 源格式
  * @returns {Promise<{taskId: string}>}
  */
-async function createDocumentConvertTask({ filePath, targetFormat, sourceFormat }) {
-  // 1. 上传到云存储
-  const { cloudPath, tempUrl } = await uploadToCloudStorage(filePath, sourceFormat);
-
-  // 2. 调用云托管服务进行转换
-  const postData = {
-    downloadUrl: tempUrl,
-    cloudPath,
-    category: "document",
+function createDocumentConvertTask({ filePath, targetFormat, sourceFormat }) {
+  const url = `${getBaseUrl()}/convert/upload`;
+  return httpUploadFile(url, filePath, {
+    category: 'document',
     target: targetFormat,
     source: sourceFormat
-  };
-
-  console.log('调用 /convert/upload，发送数据:', postData);
-
-  const result = await cloudRequest("/convert/upload", "POST", postData);
-
-  if (result && result.taskId) {
-    return { taskId: result.taskId };
-  } else {
-    throw new Error(result?.message || "转换任务创建失败");
-  }
+  });
 }
 
 /**
- * HTTP 方式 - 创建音频转换任务
+ * 创建音频转换任务
  * @param {object} params - 转换参数
  * @param {string} params.filePath - 本地文件路径
  * @param {string} params.targetFormat - 目标格式
  * @returns {Promise<{taskId: string}>}
  */
-async function createAudioConvertTask({ filePath, targetFormat }) {
+function createAudioConvertTask({ filePath, targetFormat }) {
   const url = `${getBaseUrl()}/convert/upload`;
   return httpUploadFile(url, filePath, {
     category: "audio",
@@ -255,20 +153,11 @@ async function createAudioConvertTask({ filePath, targetFormat }) {
 }
 
 /**
- * 云调用 - 查询转换任务状态
+ * 查询转换任务状态
  * @param {string} taskId - 任务 ID
  * @returns {Promise<{state: string, url?: string, message?: string}>}
  */
-function queryTaskByCloud(taskId) {
-  return cloudRequest(`/convert/task/${taskId}`, "GET");
-}
-
-/**
- * HTTP 方式 - 查询转换任务状态
- * @param {string} taskId - 任务 ID
- * @returns {Promise<{state: string, url?: string, message?: string}>}
- */
-function queryTaskByHttp(taskId) {
+function queryTask(taskId) {
   const url = `${getBaseUrl()}/convert/task/${taskId}`;
   return httpRequest(url, "GET");
 }
@@ -317,48 +206,34 @@ async function pollTaskUntilComplete(taskId, queryFn, onProgress, timeout = 5 * 
 }
 
 /**
- * 加载支持的格式 - 云调用方式
+ * 加载支持的格式
  * @param {string} category - 分类 'document' | 'audio'
  * @returns {Promise<object>}
  */
-async function loadSupportedFormatsByCloud(category) {
-  const result = await cloudRequest(`/supported-formats?category=${category}`, "GET");
-  return result;
-}
-
-/**
- * 加载支持的格式 - HTTP 方式
- * @param {string} category - 分类 'document' | 'audio'
- * @returns {Promise<object>}
- */
-async function loadSupportedFormatsByHttp(category) {
+function loadSupportedFormats(category) {
   const url = `${getBaseUrl()}/supported-formats?category=${category}`;
   return httpRequest(url, "GET");
 }
 
 /**
- * 健康检查 - 云调用方式
+ * 健康检查
  * @returns {Promise<object>}
  */
-function healthCheckByCloud() {
-  return cloudRequest("/health", "GET");
+function healthCheck() {
+  const url = `${getBaseUrl()}/health`;
+  return httpRequest(url, "GET");
 }
 
 module.exports = {
-  CLOUD_CONFIG,
-  PUBLIC_BASE_URL,
+  BASE_URL,
   getBaseUrl,
   normalizeFileUrl,
-  cloudRequest,
   httpRequest,
   httpUploadFile,
-  uploadToCloudStorage,
   createDocumentConvertTask,
   createAudioConvertTask,
-  queryTaskByCloud,
-  queryTaskByHttp,
+  queryTask,
   pollTaskUntilComplete,
-  loadSupportedFormatsByCloud,
-  loadSupportedFormatsByHttp,
-  healthCheckByCloud
+  loadSupportedFormats,
+  healthCheck
 };

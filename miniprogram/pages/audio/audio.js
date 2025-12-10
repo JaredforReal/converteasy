@@ -8,8 +8,8 @@ const {
   getBaseUrl,
   normalizeFileUrl,
   createAudioConvertTask,
-  queryTaskByHttp,
-  loadSupportedFormatsByHttp
+  queryTask,
+  loadSupportedFormats
 } = require('../../utils/api');
 const {
   AUDIO_SOURCE_FORMATS,
@@ -47,7 +47,7 @@ Page({
 
   async loadSupportedFormats() {
     try {
-      const response = await loadSupportedFormatsByHttp('audio');
+      const response = await loadSupportedFormats('audio');
       if (response.audio && response.audio.supportedConversions) {
         this.setData({
           conversionMap: response.audio.supportedConversions
@@ -186,7 +186,7 @@ Page({
     const timeout = 5 * 60 * 1000;
 
     while (Date.now() - start < timeout) {
-      const status = await queryTaskByHttp(taskId);
+      const status = await queryTask(taskId);
       const elapsed = Date.now() - start;
       const smooth = Math.min(90, Math.max(5, Math.floor(elapsed / 1000) * 3));
 
