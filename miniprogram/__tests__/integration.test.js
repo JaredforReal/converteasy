@@ -21,7 +21,14 @@ global.wx = {
   canIUse: jest.fn(() => true),
   env: {
     USER_DATA_PATH: '/wxfile/user'
-  }
+  },
+
+  getAccountInfoSync: jest.fn(() => ({
+    miniProgram: {
+      envVersion: 'develop' // 模拟开发环境，允许 localhost
+    }
+  })),
+
 };
 
 // Mock getApp

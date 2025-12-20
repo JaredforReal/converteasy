@@ -12,11 +12,11 @@ global.wx = {
   downloadFile: jest.fn(),
 
   getAccountInfoSync: jest.fn(() => ({
-      miniProgram: {
-        envVersion: 'develop' 
-      }
-    }))
-
+    miniProgram: {
+      envVersion: 'develop' 
+    }
+  }))
+  
 };
 
 // Mock getApp

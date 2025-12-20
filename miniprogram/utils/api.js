@@ -34,8 +34,13 @@ function normalizeFileUrl(url) {
     if (u.includes('/download/')) {
       u = u.replace('/download/', '/public/');
     }
-    
-    let isProd = true; // 默认为生产环境
+    // const localhostPattern = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/i;
+    // if (localhostPattern.test(u)) {
+    //   const base = BASE_URL.replace(/\/$/, '');
+    //   u = u.replace(localhostPattern, base);
+    //   console.log('已将本地地址替换为正式域名:', u);
+    // }
+    let isProd = true; // 默认为生产环境（安全兜底）
 
     if (typeof wx !== 'undefined' && wx.getAccountInfoSync) {
       try {
@@ -59,7 +64,6 @@ function normalizeFileUrl(url) {
         console.log('已将本地地址替换为正式域名:', u);
       }
     }
-
   } catch (e) {
     console.warn('规范化文件 URL 失败，返回原始 URL', e);
   }
