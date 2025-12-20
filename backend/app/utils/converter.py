@@ -2,29 +2,31 @@
 转换工具函数 - FFmpeg 和 LibreOffice 转换
 """
 
-import os
-import sys
 import asyncio
+import os
 import shutil
+import sys
 from pathlib import Path
 
-from app.config import settings, PYTHON_CONVERSIONS
+from app.config import PYTHON_CONVERSIONS, settings
+
 
 def safe_decode(byte_data: bytes) -> str:
     """兼容 Windows(GBK) 和 Linux(UTF-8) 的解码函数"""
     if not byte_data:
         return ""
-    
+
     # 优先尝试 UTF-8
     try:
-        return byte_data.decode('utf-8')
+        return byte_data.decode("utf-8")
     except UnicodeDecodeError:
         # 失败则尝试 GBK (Windows 常见)
         try:
-            return byte_data.decode('gbk')
+            return byte_data.decode("gbk")
         except UnicodeDecodeError:
             # 实在不行就忽略错误，保证程序不崩
-            return byte_data.decode('utf-8', errors='replace')
+            return byte_data.decode("utf-8", errors="replace")
+
 
 async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> None:
     """运行 FFmpeg 进行音频转换"""
@@ -53,7 +55,9 @@ async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> N
         cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
     )
 
-    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
+    stdout, stderr = await asyncio.wait_for(
+        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
+    )
 
     if stdout:
         print(f"FFmpeg output: {safe_decode(stdout)}")
@@ -104,7 +108,9 @@ async def run_soffice(input_path: str, output_dir: str, target_format: str) -> s
         env={**os.environ, "HOME": "/tmp"},
     )
 
-    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
+    stdout, stderr = await asyncio.wait_for(
+        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
+    )
 
     if stdout:
         print(f"LibreOffice output: {safe_decode(stdout)}")
@@ -125,7 +131,9 @@ async def run_soffice(input_path: str, output_dir: str, target_format: str) -> s
     return str(latest_file)
 
 
-async def run_python_conversion(input_path: str, output_path: str, conversion_key: str) -> None:
+async def run_python_conversion(
+    input_path: str, output_path: str, conversion_key: str
+) -> None:
     """运行 Python 脚本进行转换"""
     if conversion_key not in PYTHON_CONVERSIONS:
         raise Exception(f"不支持的转换类型: {conversion_key}")
@@ -149,7 +157,9 @@ async def run_python_conversion(input_path: str, output_path: str, conversion_ke
         env={**os.environ, "PYTHONPATH": str(script_path.parent)},
     )
 
-    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
+    stdout, stderr = await asyncio.wait_for(
+        proc.communicate(), timeout=settings.CONVERSION_TIMEOUT
+    )
 
     if stdout:
         print(f"Python output: {safe_decode(stdout)}")
