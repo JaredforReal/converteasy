@@ -34,12 +34,12 @@ function normalizeFileUrl(url) {
     if (u.includes('/download/')) {
       u = u.replace('/download/', '/public/');
     }
-    const localhostPattern = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/i;
-    if (localhostPattern.test(u)) {
-      const base = BASE_URL.replace(/\/$/, '');
-      u = u.replace(localhostPattern, base);
-      console.log('已将本地地址替换为正式域名:', u);
-    }
+    // const localhostPattern = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/i;
+    // if (localhostPattern.test(u)) {
+    //   const base = BASE_URL.replace(/\/$/, '');
+    //   u = u.replace(localhostPattern, base);
+    //   console.log('已将本地地址替换为正式域名:', u);
+    // }
   } catch (e) {
     console.warn('规范化文件 URL 失败，返回原始 URL', e);
   }

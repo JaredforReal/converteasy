@@ -255,6 +255,35 @@ Page({
     const item = this.data.fileList[index];
     if (!item?.downloadUrl) return;
 
+    // 新增：预览格式检查
+    let ext = '';
+    if (item.downloadUrl) {
+      const cleanUrl = item.downloadUrl.split('?')[0];
+      ext = getExt(cleanUrl);
+    } else {
+      ext = getExt(item.name);
+    }
+
+    const SUPPORTED_DOC_FORMATS = ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf'];
+
+    if (!SUPPORTED_DOC_FORMATS.includes(ext.toLowerCase())) {
+      wx.showModal({
+        title: '不支持预览',
+        content: `小程序暂不支持直接打开 ${ext} 格式，请复制链接后在浏览器中查看。`,
+        confirmText: '复制链接',
+        success: (res) => {
+          if (res.confirm) {
+            const url = normalizeFileUrl ? normalizeFileUrl(item.downloadUrl) : item.downloadUrl;
+            wx.setClipboardData({
+              data: url,
+              success: () => showToast('链接已复制')
+            });
+          }
+        }
+      });
+      return;
+    }
+
     showLoading('加载中...');
     try {
       const fileUrl = normalizeFileUrl(item.downloadUrl);

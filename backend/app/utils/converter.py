@@ -3,12 +3,28 @@
 """
 
 import os
+import sys
 import asyncio
 import shutil
 from pathlib import Path
 
 from app.config import settings, PYTHON_CONVERSIONS
 
+def safe_decode(byte_data: bytes) -> str:
+    """兼容 Windows(GBK) 和 Linux(UTF-8) 的解码函数"""
+    if not byte_data:
+        return ""
+    
+    # 优先尝试 UTF-8
+    try:
+        return byte_data.decode('utf-8')
+    except UnicodeDecodeError:
+        # 失败则尝试 GBK (Windows 常见)
+        try:
+            return byte_data.decode('gbk')
+        except UnicodeDecodeError:
+            # 实在不行就忽略错误，保证程序不崩
+            return byte_data.decode('utf-8', errors='replace')
 
 async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> None:
     """运行 FFmpeg 进行音频转换"""
@@ -23,6 +39,7 @@ async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> N
         "flac": f"{base_params} -compression_level 8",
         "ogg": f"{base_params} -c:a libvorbis -qscale:a 5",
         "m4a": f"{base_params} -c:a aac -b:a 128k -movflags +faststart",
+        "wma": f"{base_params} -c:a wmav2 -b:a 128k",
     }
 
     optimized_params = format_params.get(target_format, base_params)
@@ -39,9 +56,9 @@ async def run_ffmpeg(input_path: str, output_path: str, target_format: str) -> N
     stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
-        print(f"FFmpeg output: {stdout.decode()}")
+        print(f"FFmpeg output: {safe_decode(stdout)}")
     if stderr:
-        print(f"FFmpeg warnings: {stderr.decode()}")
+        print(f"FFmpeg warnings: {safe_decode(stderr)}")
 
     # 验证输出文件
     output = Path(output_path)
@@ -90,9 +107,9 @@ async def run_soffice(input_path: str, output_dir: str, target_format: str) -> s
     stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
-        print(f"LibreOffice output: {stdout.decode()}")
+        print(f"LibreOffice output: {safe_decode(stdout)}")
     if stderr:
-        print(f"LibreOffice warnings: {stderr.decode()}")
+        print(f"LibreOffice warnings: {safe_decode(stderr)}")
 
     # 查找输出文件
     output_dir_path = Path(output_dir)
@@ -135,9 +152,9 @@ async def run_python_conversion(input_path: str, output_path: str, conversion_ke
     stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=settings.CONVERSION_TIMEOUT)
 
     if stdout:
-        print(f"Python output: {stdout.decode()}")
+        print(f"Python output: {safe_decode(stdout)}")
     if stderr:
-        print(f"Python warnings: {stderr.decode()}")
+        print(f"Python warnings: {safe_decode(stderr)}")
 
     # 验证输出文件
     output = Path(output_path)
