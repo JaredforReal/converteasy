@@ -77,7 +77,17 @@ repos:
     hooks:
       - id: markdownlint
         name: Markdown 格式检查
-        args: ["--fix", "--disable", "MD013", "MD033", "MD036", "MD040", "MD041", "--"]
+        args:
+          [
+            "--fix",
+            "--disable",
+            "MD013",
+            "MD033",
+            "MD036",
+            "MD040",
+            "MD041",
+            "--",
+          ]
 
   # 提交信息格式检查（可选）
   # - repo: https://github.com/commitizen-tools/commitizen

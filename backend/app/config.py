@@ -105,6 +105,7 @@ SUPPORTED_CONVERSIONS: Dict[str, Dict[str, List[str]]] = {
         "flac": [".flac", ".wav", ".mp3", ".aac"],
         "ogg": [".ogg", ".mp3", ".wav", ".flac"],
         "m4a": [".m4a", ".mp3", ".wav", ".aac"],
+        "wma": [".mp3", ".wav", ".aac", ".flac", ".m4a", ".ogg", ".wma"],
     },
 }
 

@@ -324,6 +324,33 @@ Page({
     const item = this.data.fileList[index];
     if (!item || !item.downloadUrl) return;
 
+    // 预览格式检查
+    let fileExt = '';
+    if (item.downloadUrl) {
+      const cleanUrl = item.downloadUrl.split('?')[0];
+      fileExt = getExt(cleanUrl);
+    } else {
+      fileExt = getExt(item.name);
+    }
+
+    // 2. 预览格式白名单（确保均为小写）
+    const SUPPORTED_PREVIEW_FORMATS = ['.mp3', '.aac', '.m4a', '.wav'];
+
+    // 3. 检查是否支持
+    if (!SUPPORTED_PREVIEW_FORMATS.includes(fileExt.toLowerCase())) {
+      wx.showModal({
+        title: '不支持预览',
+        content: `小程序暂不支持直接播放 ${fileExt} 格式，请复制链接后在浏览器中播放。`,
+        confirmText: '复制链接',
+        success: (res) => {
+          if (res.confirm) {
+            this._copyLinkFallback(normalizeFileUrl(item.downloadUrl));
+          }
+        }
+      });
+      return;
+    }
+
     showLoading('加载音频...');
 
     try {

@@ -22,7 +22,7 @@ function getBaseUrl() {
 
 /**
  * 规范化文件 URL
- * 将 /download/ 路径替换为 /public/，处理 localhost 地址
+ * 强制将 /download/ 路径替换为 /public/，并将 localhost 替换为线上域名
  * @param {string} url - 原始 URL
  * @returns {string} 规范化后的 URL
  */
@@ -31,15 +31,20 @@ function normalizeFileUrl(url) {
   let u = url;
   try {
     if (typeof u !== 'string') u = String(u);
+
+    // 1. 替换下载路径
     if (u.includes('/download/')) {
       u = u.replace('/download/', '/public/');
     }
+
+    // 2. 强制替换本地地址 (不进行环境判断，无条件替换)
     const localhostPattern = /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/i;
     if (localhostPattern.test(u)) {
       const base = BASE_URL.replace(/\/$/, '');
       u = u.replace(localhostPattern, base);
       console.log('已将本地地址替换为正式域名:', u);
     }
+
   } catch (e) {
     console.warn('规范化文件 URL 失败，返回原始 URL', e);
   }

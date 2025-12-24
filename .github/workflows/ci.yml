@@ -54,12 +54,12 @@ jobs:
           path: |
             /var/cache/apt/archives
             /var/lib/apt/lists
-          key: ${{ runner.os }}-apt-libreoffice-ffmpeg-v1
+          key: ${{ runner.os }}-apt-libreoffice-ffmpeg-cairo-v2
 
       - name: 安装系统依赖
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress ffmpeg
+          sudo apt-get install -y --no-install-recommends libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress ffmpeg libcairo2-dev pkg-config
 
       - name: 安装 Python 依赖
         run: |
@@ -133,7 +133,7 @@ jobs:
         run: |
           pip install black flake8
           black --check --line-length=100 backend/ || echo "::warning::Black 格式检查发现问题"
-          flake8 backend/ --max-line-length=100 --extend-ignore=E203,E501,W503 --exclude=__pycache__ || echo "::warning::Flake8 检查发现问题"
+          flake8 backend/ --max-line-length=100 --extend-ignore=E203,E501,W503 --exclude=__pycache__,*.pyc,.git,venv || echo "::warning::Flake8 检查发现问题"
 
   # 构建状态汇总
   ci-status:
@@ -150,11 +150,17 @@ jobs:
           quality_result="${{ needs.quality.result }}"
 
           # 跳过的测试不算失败
-          if [ "$backend_result" == "failure" ] || [ "$frontend_result" == "failure" ] || [ "$quality_result" == "failure" ]; then
+          if [ "$backend_result" = "failure" ] || [ "$frontend_result" = "failure" ] || [ "$quality_result" = "failure" ]; then
             echo "❌ CI 检查失败"
             exit 1
           else
             echo "✅ 所有 CI 检查通过"
-            [ "${{ needs.changes.outputs.backend }}" == "false" ] && echo "⏭️ 后端测试已跳过（无相关变更）"
-            [ "${{ needs.changes.outputs.frontend }}" == "false" ] && echo "⏭️ 前端测试已跳过（无相关变更）"
+            backend_changed="${{ needs.changes.outputs.backend }}"
+            frontend_changed="${{ needs.changes.outputs.frontend }}"
+            if [ "$backend_changed" = "false" ]; then
+              echo "⏭️ 后端测试已跳过（无相关变更）"
+            fi
+            if [ "$frontend_changed" = "false" ]; then
+              echo "⏭️ 前端测试已跳过（无相关变更）"
+            fi
           fi

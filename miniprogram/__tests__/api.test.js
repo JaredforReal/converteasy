@@ -9,7 +9,14 @@ const { normalizeFileUrl, BASE_URL, getBaseUrl } = require('../utils/api');
 global.wx = {
   request: jest.fn(),
   uploadFile: jest.fn(),
-  downloadFile: jest.fn()
+  downloadFile: jest.fn(),
+
+  getAccountInfoSync: jest.fn(() => ({
+    miniProgram: {
+      envVersion: 'develop'
+    }
+  }))
+
 };
 
 // Mock getApp
