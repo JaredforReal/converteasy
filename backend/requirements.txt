@@ -35,8 +35,9 @@ xlwt==1.3.0
 
 # ============ HTML 处理 ============
 beautifulsoup4==4.12.2       # HTML 解析
-xhtml2pdf==0.2.13            # HTML 转 PDF
-reportlab==4.0.4             # xhtml2pdf 依赖
+markdown>=3.3.7              # Markdown 解析
+html2docx>=1.3.2             # HTML 转 DOCX
+md2pdf>=1.0.0                # Markdown 转 PDF
 
 # ============ 其他工具库 ============
 Pillow==10.1.0               # 图像处理

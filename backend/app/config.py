@@ -38,6 +38,7 @@ class Settings(BaseSettings):
         ".txt",
         ".rtf",
         ".html",
+        ".md",
     ]
     ALLOWED_AUDIO_EXT: List[str] = [".mp3", ".wav", ".aac", ".flac", ".m4a", ".ogg", ".wma"]
 
@@ -95,6 +96,7 @@ SUPPORTED_CONVERSIONS: Dict[str, Dict[str, List[str]]] = {
         "txt": [".doc", ".docx", ".rtf", ".odt", ".pdf", ".xls", ".xlsx"],
         "rtf": [".doc", ".docx", ".txt", ".odt"],
         "html": [".pdf", ".doc", ".docx"],
+        "md": [".html", ".pdf", ".docx"],
     },
     "audio": {
         "mp3": [".mp3", ".wav", ".aac", ".flac", ".m4a", ".ogg", ".wma"],
@@ -130,6 +132,9 @@ PYTHON_CONVERSIONS: Dict[str, Dict[str, str]] = {
     "html->doc": {"script": "html_to_word.py", "description": "HTML 转 Word"},
     "html->docx": {"script": "html_to_word.py", "description": "HTML 转 Word"},
     "html->pdf": {"script": "html_to_pdf.py", "description": "HTML 转 PDF"},
+    "md->html": {"script": "md_to_html.py", "description": "Markdown 转 HTML"},
+    "md->pdf": {"script": "md_to_pdf.py", "description": "Markdown 转 PDF"},
+    "md->docx": {"script": "md_to_docx.py", "description": "Markdown 转 DOCX"},
 }
 
 

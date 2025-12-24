@@ -33,6 +33,7 @@
   - [ ] 创建 `md_to_docx.py` 脚本
   - [ ] 更新 `PYTHON_CONVERSIONS` 映射
   - [ ] 更新前端格式配置
+- **状态**: 已解决
 
 ### Issue #2: WMA 音频格式声称支持但实际未实现
 

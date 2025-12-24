@@ -8,7 +8,7 @@
 /**
  * 文档源格式列表
  */
-const DOCUMENT_SOURCE_FORMATS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'html'];
+const DOCUMENT_SOURCE_FORMATS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'html', 'md'];
 
 /**
  * 文档源格式显示名称
@@ -23,7 +23,8 @@ const DOCUMENT_SOURCE_FORMAT_DISPLAY = [
   'PPT(.pptx)',
   'TXT',
   'RTF',
-  'HTML'
+  'HTML',
+  'Markdown'
 ];
 
 /**
@@ -48,7 +49,8 @@ const DOCUMENT_FORMAT_DISPLAY_NAMES = {
   'csv': 'CSV',
   'odt': 'ODT',
   'ods': 'ODS',
-  'odp': 'ODP'
+  'odp': 'ODP',
+  'md': 'Markdown'
 };
 
 /**
@@ -64,7 +66,8 @@ const DOCUMENT_CONVERSION_MAP = {
   'pptx': ['ppt', 'odp', 'pdf'],
   'txt': ['doc', 'docx', 'rtf', 'odt', 'pdf', 'xls', 'xlsx'],
   'rtf': ['doc', 'docx', 'txt', 'odt'],
-  'html': ['pdf', 'doc', 'docx']
+  'html': ['pdf', 'doc', 'docx'],
+  'md': ['html', 'pdf', 'docx']
 };
 
 /**
@@ -80,7 +83,8 @@ const DOCUMENT_ALLOWED_EXTENSIONS = {
   pptx: ['.pptx'],
   txt: ['.txt'],
   rtf: ['.rtf'],
-  html: ['.html', '.htm']
+  html: ['.html', '.htm'],
+  md: ['.md']
 };
 
 /**
@@ -100,7 +104,8 @@ const DOCUMENT_ICONS = {
   '.csv': '📊',
   '.odt': '📝',
   '.ods': '📊',
-  '.odp': '📋'
+  '.odp': '📋',
+  '.md': '✍️'
 };
 
 // ==================== 音频格式配置 ====================
