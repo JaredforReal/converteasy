@@ -2,30 +2,33 @@
 .container {
   padding: 32rpx;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(180deg, #f0f6ff 0%, #f7f8fa 100%);
+  box-sizing: border-box;
 }
 
 .title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #00234b;
   text-align: center;
-  margin-bottom: 32rpx;
+  margin-bottom: 40rpx;
+  letter-spacing: 1rpx;
 }
 
 /* 通用卡片样式 */
 .card {
   background: white;
-  border-radius: 16rpx;
-  padding: 32rpx;
+  border-radius: 24rpx;
+  padding: 40rpx;
   margin-bottom: 32rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4rpx 20rpx rgba(0, 82, 217, 0.06);
+  border: 1rpx solid rgba(0, 82, 217, 0.05);
 }
 
 .subtitle {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #00234b;
   margin-bottom: 24rpx;
 }
 
@@ -33,23 +36,26 @@
 .format-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-  margin-bottom: 16rpx;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
 }
 
 .format-item {
-  background: #f8f9fa;
-  border: 2rpx solid #e9ecef;
-  border-radius: 12rpx;
-  padding: 24rpx 16rpx;
+  background: #ffffff;
+  border: 2rpx solid #e7e7e7;
+  border-radius: 16rpx;
+  padding: 24rpx 12rpx;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
 }
 
 .format-item.selected {
-  background: #007bff;
-  border-color: #007bff;
-  color: white;
+  background: #e6f0ff;
+  border-color: #0052d9;
+  color: #0052d9;
+  font-weight: 600;
+  box-shadow: 0 4rpx 12rpx rgba(0, 82, 217, 0.15);
 }
 
 .format-text {
@@ -62,11 +68,13 @@
   display: flex;
   align-items: center;
   padding: 24rpx;
-  background: #f8f9fa;
-  border-radius: 12rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
   margin-bottom: 16rpx;
+  border: 1rpx solid rgba(0, 82, 217, 0.05);
   /* 关键：确保内容溢出时布局稳定 */
   justify-content: space-between;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
 }
 
 .file-info {
@@ -78,8 +86,8 @@
 
 .file-name {
   font-size: 28rpx;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: #00234b;
   margin-bottom: 8rpx;
   /* 关键：单行截断 */
   white-space: nowrap;
@@ -108,7 +116,7 @@
 
 .status-success {
   background: #d1edff;
-  color: #0c5460;
+  color: #0052d9;
 }
 
 .status-error {
@@ -124,10 +132,11 @@
 
 .action-row button {
   font-size: 22rpx;
-  padding: 8rpx 16rpx;
+  padding: 8rpx 24rpx;
   margin: 0 !important; /* 清除默认 margin */
   line-height: 1.5;
   white-space: nowrap; /* 按钮文字不换行 */
+  border-radius: 30rpx;
 }
 
 /* 进度条样式 */
@@ -144,7 +153,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #007bff, #0056b3);
+  background: #0052d9;
   border-radius: 6rpx;
   transition: width 0.3s ease;
 }
@@ -158,22 +167,24 @@
 
 /* 按钮样式 */
 .btn-primary {
-  background: #007bff;
+  background: #0052d9;
   color: white;
   border: none;
-  border-radius: 12rpx;
+  border-radius: 40rpx;
   padding: 24rpx;
   font-size: 28rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 82, 217, 0.2);
 }
 
 .btn-success {
-  background: #28a745;
+  background: #2ba471;
   color: white;
   border: none;
-  border-radius: 12rpx;
+  border-radius: 40rpx;
   padding: 24rpx;
   font-size: 28rpx;
   width: 100%;
+  box-shadow: 0 4rpx 12rpx rgba(43, 164, 113, 0.2);
 }
 
 /* 预览模态框 */

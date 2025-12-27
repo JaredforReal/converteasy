@@ -70,10 +70,24 @@ Page({
     try {
       const result = await loadSupportedFormats('document');
       if (result?.document?.supportedConversions) {
-        this.setData({ conversionMap: result.document.supportedConversions });
+        const rawMap = result.document.supportedConversions;
+        const normalizedMap = {};
+
+        // 规范化：移除扩展名前的点
+        Object.keys(rawMap).forEach(key => {
+          const targets = rawMap[key];
+          if (Array.isArray(targets)) {
+            // 确保 key 也没有点
+            const normalizedKey = key.replace(/^\./, '');
+            normalizedMap[normalizedKey] = targets.map(t => t.replace(/^\./, ''));
+          }
+        });
+
+        console.log('Loaded conversion map:', normalizedMap);
+        this.setData({ conversionMap: normalizedMap });
       }
     } catch (error) {
-      console.warn('加载支持的格式失败，使用默认配置');
+      console.warn('加载支持的格式失败，使用默认配置', error);
     }
   },
 
@@ -82,6 +96,9 @@ Page({
     const index = Number(e.currentTarget.dataset.index);
     const sourceFormat = this.data.sourceFormats[index];
     const availableTargets = this.data.conversionMap[sourceFormat] || [];
+
+    console.log('Selected source:', sourceFormat, 'Available targets:', availableTargets);
+
     const itemDisplayNames = getTargetDisplayNames('document', availableTargets);
     const targetFormatNames = itemDisplayNames.join('、');
 

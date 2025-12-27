@@ -21,10 +21,9 @@
         <view class="format-text">{{itemDisplayNames[index]}}</view>
       </view>
       <view wx:if="{{availableTargets.length === 0}}" class="no-targets">
-        <view class="muted">请先选择源文件格式</view>
+        <view class="muted">{{sourceIndex === -1 ? '请先选择源文件格式' : '该格式暂无支持的目标格式'}}</view>
       </view>
     </view>
-    <view class="muted" wx:if="{{availableTargets.length > 0}}">支持转换为：{{targetFormatNames}}</view>
   </view>
 
   <view class="card">

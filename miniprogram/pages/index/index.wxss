@@ -2,24 +2,26 @@
 .container {
   padding: 32rpx;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #f0f6ff 0%, #f7f8fa 100%);
 }
 
 .header {
   text-align: center;
   margin-bottom: 60rpx;
+  padding-top: 20rpx;
 }
 
 .title {
   font-size: 48rpx;
-  font-weight: bold;
-  color: white;
+  font-weight: 600;
+  color: #00234b;
   margin-bottom: 16rpx;
+  letter-spacing: 1rpx;
 }
 
 .subtitle {
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #5e6c84;
 }
 
 .category-grid {
@@ -31,40 +33,44 @@
 
 .category-card {
   background: white;
-  border-radius: 20rpx;
-  padding: 32rpx;
+  border-radius: 24rpx;
+  padding: 40rpx 32rpx;
   text-align: center;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4rpx 20rpx rgba(0, 82, 217, 0.06);
   transition: all 0.3s ease;
+  border: 1rpx solid rgba(0, 82, 217, 0.05);
 }
 
 .category-card:active {
-  transform: scale(0.95);
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  transform: scale(0.98);
+  background: #e6f0ff;
+  border-color: #0052d9;
 }
 
 .category-icon {
   font-size: 64rpx;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
+  display: block;
 }
 
 .category-name {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 8rpx;
+  font-weight: 600;
+  color: #00234b;
+  margin-bottom: 12rpx;
+  display: block;
 }
 
 .category-desc {
   font-size: 24rpx;
-  color: #666;
+  color: #8898aa;
   line-height: 1.4;
 }
 
 .section-title {
   font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #00234b;
   margin-bottom: 32rpx;
   text-align: center;
 }
@@ -86,14 +92,14 @@
 
 .feature-text {
   font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #00234b;
   margin-bottom: 8rpx;
 }
 
 .feature-desc {
   font-size: 22rpx;
-  color: #666;
+  color: #8898aa;
   line-height: 1.3;
 }
 

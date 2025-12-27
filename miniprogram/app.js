@@ -6,6 +6,6 @@ App({
 
   globalData: {
     // API 基础地址（可选覆盖）
-    apiBaseUrl: 'http://localhost:8080/'
+    // apiBaseUrl: 'http://localhost:8080/'
   }
 });
